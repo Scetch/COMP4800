@@ -13,31 +13,30 @@ import java.util.Date;
 import java.util.StringTokenizer;
 
 public class MainServer { 
-    // port to listen connection
-    static final int PORT = 8081;
-    
-    // Client Connection via Socket Class
-    private Socket connect;
-    
-    public MainServer(Socket c) {
-        connect = c;
-    }
-    
-    public static void main(String[] args) {
-        try {
-            ServerSocket serverConnect = new ServerSocket(PORT);
-            System.out.println("Server started.\nListening for connections on port : " + PORT + " ...\n");
-            
-            // we listen until user halts server execution
-            while (true) {
-                MainServer myServer = new MainServer(serverConnect.accept());
+	// port to listen connection
+	static final int PORT = 8081;
+
+	// Client Connection via Socket Class
+	private Socket connect;
+
+	public MainServer(Socket c) {
+		connect = c;
+	}
+
+	public static void main(String[] args) {
+		try {
+			ServerSocket serverConnect = new ServerSocket(PORT);
+			System.out.println("Server started.\nListening for connections on port : " + PORT + " ...\n");
+
+			// we listen until user halts server execution
+			while (true) {
+				MainServer myServer = new MainServer(serverConnect.accept());
 				myServer.run();
-            }
-            
-        } catch (IOException e) {
-            System.err.println("Server Connection error : " + e.getMessage());
-        }
-    }
+			}
+		} catch (IOException e) {
+			System.err.println("Server Connection error : " + e.getMessage());
+		}
+	}
 
 	public void run()
 	{
