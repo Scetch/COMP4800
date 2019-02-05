@@ -141,6 +141,7 @@ public class MainServer {
         ArrayList<RequestHandler> reqHandlerList = new ArrayList<RequestHandler>();
         // Add request handler (order matters)
         reqHandlerList.add(new MarkReqHandler());
+		reqHandlerList.add(new DynamicReqHandler());
         reqHandlerList.add(new StaticReqHandler());
 
         MainServer server = new MainServer(reqHandlerList);
