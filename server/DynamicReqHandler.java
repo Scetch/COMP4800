@@ -2,79 +2,49 @@ import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 
+// TODO: Cleanup
 public class DynamicReqHandler extends RequestHandler {
-    static final String DYNAMIC_DIR = System.getProperty("user.dir") + System.getProperty("file.separator") + "sites";
+	private static final String DYNAMIC_DIR = System.getProperty("user.dir") + System.getProperty("file.separator") + "sites";
 
-    public DynamicReqHandler() {
-        super("GET", "/dynamic/.*");
-    }
+	public DynamicReqHandler() {}
 
-    // Basic class to hold file information
-	// Not sure if needed for dynamic files
-	// as the return type will always be text (for now)
-    private class TypeData {
-        public String type;
-        public byte[] data;
-    
-        public TypeData(String type, byte[] data) {
-            this.type = type;
-            this.data = data;
-        }
-    }
+	public boolean handle(String relativePath, String request, DataOutputStream out) throws IOException {
+		if(relativePath.equals("/"))
+			relativePath = "index";
+		
+		Path path = Paths.get(DYNAMIC_DIR + relativePath);
 
-    public void handle(HashMap<String, String> reqMap, DataOutputStream out) throws IOException {
-        // Get the requested path and handle the special case of root /
-        String path = reqMap.get("path");
-
-		// Third element is the one we want so we can route to C / Python
-		String type = path.split("/")[2].trim();
-
-		//TODO: Consider refactoring out some of the common code
-		if (type.equals("c")) {
-			String line = "";
-			out.writeBytes("HTTP/1.1 200 OK\r\n");
-			out.writeBytes("Content-Type: text/html\r\n");
-			StringBuilder sb = new StringBuilder("");
-			Process p = Runtime.getRuntime().exec(DYNAMIC_DIR + "/a.out");
-			BufferedReader input =  new BufferedReader(new InputStreamReader(p.getInputStream()));  
-			while ((line = input.readLine()) != null) {  
-				sb.append(line);
-			}  
-			out.writeBytes("Content-Length: " + sb.length() + "\r\n");
-			out.writeBytes("\r\n");
-			out.writeBytes(sb.toString());
-			input.close();  
-		} else if (type.equals("python")) {
-			String line = "";
-			out.writeBytes("HTTP/1.1 200 OK\r\n");
-			out.writeBytes("Content-Type: text/html\r\n");
-			StringBuilder sb = new StringBuilder("");
-			Process p = Runtime.getRuntime().exec(DYNAMIC_DIR + "/py_site.py");
-			BufferedReader input =  new BufferedReader(new InputStreamReader(p.getInputStream()));  
-			while ((line = input.readLine()) != null) {  
-				sb.append(line);
-			}  
-			out.writeBytes("Content-Length: " + sb.length() + "\r\n");
-			out.writeBytes("\r\n");
-			out.writeBytes(sb.toString());
-			input.close();  
-		} else {
-            out.writeBytes("HTTP/1.1 404 Not Found\r\n");
-            out.writeBytes("\r\n");
-            out.writeBytes("The dynamic website could not be found.");
+		// If the file exists we want to run it with the request sent to stdin.
+		if(!Files.exists(path)) {
+			return false;
 		}
 
-        // Attempt to get the file type and data that is requested
-        //    out.writeBytes("HTTP/1.1 200 OK\r\n");
+		Process p = Runtime.getRuntime().exec(path.toString());
+		// Send the process the Request
+		DataOutputStream pout = new DataOutputStream(p.getOutputStream());
+		pout.writeBytes(request);
+		pout.flush();
+		pout.close();
 
-        //    // If we know the type of the file we will send that to the browser
-        //    if (source.type != null) {
-        //        out.writeBytes("Content-Type: " + source.type + "\r\n");
-        //    }
+		// Get the response from the process
+		StringBuffer resp = new StringBuffer();
+		BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		while(true) {
+			String line = in.readLine();
+			if(line == null)
+				break;
+			resp.append(line);
+		}
+		//in.close();
 
-        //    out.writeBytes("Content-Length: " + source.data.length + "\r\n");
-        //    out.writeBytes("\r\n");
-        //    out.write(source.data, 0, source.data.length);
-        return;
-    };
+		out.writeBytes("HTTP/1.1 200 OK\r\n");
+		out.writeBytes("Content-Type: text/html\r\n");
+		out.writeBytes("Content-Length: " + resp.length() + "\r\n");
+		out.writeBytes("\r\n");
+		out.writeBytes(resp.toString());
+
+		//p.destroy();
+
+		return true;
+	}
 }

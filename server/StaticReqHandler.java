@@ -1,62 +1,39 @@
 import java.util.*;
 import java.io.*;
 import java.nio.file.*;
+import java.nio.charset.*;
 
 public class StaticReqHandler extends RequestHandler {
-    static final String STATIC_DIR = System.getProperty("user.dir") + System.getProperty("file.separator") + "static";
+    private static final String STATIC_DIR = System.getProperty("user.dir") + System.getProperty("file.separator") + "static";
 
-    public StaticReqHandler() {
-        super("GET", ".*");
-    }
+    public StaticReqHandler() {}
 
-    // Basic class to hold file information
-    private class TypeData {
-        public String type;
-        public byte[] data;
-    
-        public TypeData(String type, byte[] data) {
-            this.type = type;
-            this.data = data;
-        }
-    }
+    public boolean handle(String relativePath, String request, DataOutputStream out) throws IOException {
+        // Simple hack to give a file name to /
+        if(relativePath.equals("/"))
+            relativePath = "/index.html";
 
-    // Load a static file from the STATIC_DIR and attempt to determine its type
-    public TypeData loadStaticFile(String relativePath) throws IOException {
+        // If the file exists in the static directory we will send the browser
+        // that data.
         Path path = Paths.get(STATIC_DIR + relativePath);
-        if (!Files.exists(path)) {
-            return null;
+        if(!Files.exists(path)) {
+            return false;
         }
 
+        // Get the files MIME type and data
         String type = Files.probeContentType(path);
         byte[] data = Files.readAllBytes(path);
-        TypeData typeData = new TypeData(type, data);
-        return typeData;
-    }
-
-    public void handle(HashMap<String, String> reqMap, DataOutputStream out) throws IOException {
-        // Get the requested path and handle the special case of root /
-        String path = reqMap.get("path");
-        if (path.equals("/"))
-            path = "/index.html";
-
-        // Attempt to get the file type and data that is requested
-        TypeData source = loadStaticFile(path);
-        if (source == null) {
-            out.writeBytes("HTTP/1.1 404 Not Found\r\n");
-            out.writeBytes("\r\n");
-            out.writeBytes("The file was not found in the static directory.");
-        } else {
-            out.writeBytes("HTTP/1.1 200 OK\r\n");
-
-            // If we know the type of the file we will send that to the browser
-            if (source.type != null) {
-                out.writeBytes("Content-Type: " + source.type + "\r\n");
-            }
-
-            out.writeBytes("Content-Length: " + source.data.length + "\r\n");
-            out.writeBytes("\r\n");
-            out.write(source.data, 0, source.data.length);
+        
+        out.writeBytes("HTTP/1.1 200 OK\r\n");
+        
+        // If our probe gave us a useful type we will set the Content-Type
+        if(type != null) {
+            out.writeBytes("Content-Type: " + type + "\r\n");
         }
-        return;
-    };
+
+        out.writeBytes("Content-Length: " + data.length + "\r\n");
+        out.writeBytes("\r\n");
+        out.write(data, 0, data.length);
+        return true;
+    }
 }
