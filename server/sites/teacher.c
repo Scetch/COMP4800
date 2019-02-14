@@ -43,8 +43,8 @@ void getRequest() {
 
     while(nameTok != NULL && markTok != NULL) {
         printf("<tr><td>%s</td>", nameTok);
-        printf("<td><a href=\"/static/downloads/source%d.zip\" download>Source</a></td>", id);
-        printf("<td><a href=\"/static/downloads/binary%d.zip\" download>Binary</a></td>", id);
+        printf("<td><a href=\"/downloads/source%d.c\" download>Source</a></td>", id);
+        printf("<td><a href=\"/downloads/binary%d.out\" download>Binary</a></td>", id);
         printf("<td><input type=\"number\" name=\"%d\" value=\"%s\" style=\"width: 50px\" tabindex=\"1\"></td></tr>", id, markTok);
 
         id++;
