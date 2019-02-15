@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+// TODO: There are a lot of potential errors in this file, clean them up
+
 // Read an entire file to string.
 // This makes writing the HTML easier.
 char* read_file(char* name) {
@@ -28,12 +30,11 @@ char* read_file(char* name) {
 }
 
 void getRequest() {
-    char *header = read_file("sites/teacher_header.html");
+    char* header = read_file("data/teacher_header.html");
     printf("%s", header);
 
-    // Load name and marks
-    char *classList = read_file("marks/classlist.txt");
-    char *marksList = read_file("marks/marks.txt");
+    char *classList = read_file("data/classlist.txt");
+    char *marksList = read_file("data/marks.txt");
 
     // for getting each line of the string(file)
     char *saveptrName, *saveptrMark;
@@ -52,20 +53,14 @@ void getRequest() {
         markTok = strtok_r(NULL, "\n", &saveptrMark);
     }
 
-    char *footer = read_file("sites/teacher_footer.html");
+    char* footer = read_file("data/teacher_footer.html");
     printf("%s", footer);
 
     // Remember to clean up memory.
-    free(saveptrMark);
-    free(saveptrName);
-    free(nameTok);
-    free(markTok);
     free(classList);
     free(marksList);
     free(header);
     free(footer);
-
-    return;
 }
 
 char *strtok_single(char *str, char const * delims) {
@@ -88,17 +83,15 @@ char *strtok_single(char *str, char const * delims) {
     }
 
     return ret;
-
 }
 
 void postRequest(char *line) {
     // write to marks
     FILE *fp;
-    if((fp = fopen("marks/marks.txt", "w+"))==NULL) {
+    if((fp = fopen("data/marks.txt", "w+")) == NULL) {
         fprintf(stderr, "error");
         exit(1);
     }
-
 
     char delims[] = ";&=\n";
     char *pTok = strtok_single(line, delims);
@@ -112,24 +105,32 @@ void postRequest(char *line) {
     }
 
     fclose(fp);
-    return;
 }
 
 // comple: gcc teacher.c -o teacher
 int main() {
-    char line[257];
-    fgets(line, 5, stdin);
-    if(strcmp(line,"GET ")==0) {
+    char line[1024];
+
+    // Get the first line, this is the status line
+    fgets(line, 1022, stdin);
+
+    // All we care about is the method so we'll slice off the rest after it
+    char* first_space = strchr(line, ' ');
+    if(first_space != NULL) {
+        *first_space = '\0';
+    }
+
+    // Check the method and handle accordingly
+    if(strcmp(line, "GET") == 0) {
         getRequest();
-        return 0;
-    } else if(strcmp(line, "POST")==0) {
-        while(fgets(line, 255, stdin) != NULL) {
-            // Skip until end of line
+    } else if(strcmp(line, "POST") == 0) {
+        while(fgets(line, 1022, stdin) != NULL) {
+            // Skip until the last line
         }
+
         strcat(line, ";");
-        postRequest(line);
+        postRequest(line);        
         getRequest();
-        return 0;
     }
 
     return 0;

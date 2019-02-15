@@ -1,12 +1,12 @@
+package handler;
+
 import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 import java.nio.charset.*;
 
-public class StaticReqHandler extends RequestHandler {
+public class Static implements Handler {
     private static final String STATIC_DIR = System.getProperty("user.dir") + System.getProperty("file.separator") + "static";
-
-    public StaticReqHandler() {}
 
     public boolean handle(String relativePath, String request, DataOutputStream out) throws IOException {
         // Simple hack to give a file name to /
@@ -16,7 +16,7 @@ public class StaticReqHandler extends RequestHandler {
         // If the file exists in the static directory we will send the browser
         // that data.
         Path path = Paths.get(STATIC_DIR + relativePath);
-        if(!Files.exists(path)) {
+        if(!Files.exists(path) || Files.isDirectory(path)) {
             return false;
         }
 
