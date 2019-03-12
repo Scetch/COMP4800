@@ -1,3 +1,6 @@
+# Compile makefile in dynamic folder
+make -C dynamic
+
 # Create the out directory out/
 mkdir -p out
 
