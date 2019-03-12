@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import handler.Handler;
@@ -44,6 +46,16 @@ public class Server {
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         
         StringBuilder reqBuilder = new StringBuilder();
+
+        // Wait for BufferredReader to be ready and wait for a max of 0.5 seconds
+        long startTimer = System.currentTimeMillis();
+        while(!in.ready()) {
+            if(System.currentTimeMillis() - startTimer > 500) {
+                out.close();
+                in.close();
+                return;
+            }
+        }
         
         // Read a full request from the socket
         while(in.ready()) {
