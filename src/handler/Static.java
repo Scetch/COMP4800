@@ -8,11 +8,13 @@ import java.nio.charset.*;
 public class Static implements Handler {
     private static final String STATIC_DIR = System.getProperty("user.dir") + System.getProperty("file.separator") + "static";
 
-    public boolean handle(String relativePath, String request, DataOutputStream out) throws IOException {
+    public boolean handle(Request req, DataOutputStream out) throws IOException {
+        String relativePath = req.getPath();
+        
         // Simple hack to give a file name to /
         if(relativePath.equals("/"))
-            relativePath = "/index.html";
-
+            relativePath = "/index.html";        
+    
         // If the file exists in the static directory we will send the browser
         // that data.
         Path path = Paths.get(STATIC_DIR + relativePath);

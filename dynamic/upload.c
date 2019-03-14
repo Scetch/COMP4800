@@ -60,6 +60,8 @@ char *strtok_single(char *str, char const * delims) {
 
 // comple: gcc teacher.c -o teacher
 int main() {
+
+    /*
     char line[1024];
 
     // Get the first line, this is the status line
@@ -75,6 +77,11 @@ int main() {
     if(strcmp(line, "GET") == 0) {
         getRequest();
     }
+
+    return 0;
+    */
+
+    getRequest();
 
     return 0;
 }

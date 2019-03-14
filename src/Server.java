@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import handler.Handler;
+import handler.*;
 
 public class Server {
     private static final int PORT = 8081;
@@ -45,8 +45,6 @@ public class Server {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         
-        StringBuilder reqBuilder = new StringBuilder();
-
         // Wait for BufferredReader to be ready and wait for a max of 0.5 seconds
         long startTimer = System.currentTimeMillis();
         while(!in.ready()) {
@@ -56,32 +54,41 @@ public class Server {
                 return;
             }
         }
+
+        String temp;
+        String[] startLine;
+        HashMap<String, String> headers = new HashMap<>();
+        StringBuilder body = new StringBuilder();
         
-        // Read a full request from the socket
+        // Read in startLine
+        startLine = in.readLine().split(" ");
+
+        String method = startLine[0];
+        String path = startLine[1].split("\\?", 2)[0];
+        
+        // Read in headers
         while(in.ready()) {
-            reqBuilder.append((char) in.read());
+            temp = in.readLine();
+
+            // Headers are seperated from the body of the request
+            // by an empty line
+            if(temp.isEmpty())
+                break;
+
+            String[] parts = temp.split(": ");
+            headers.put(parts[0], parts[1]);
         }
-        
-        String req = reqBuilder.toString();
 
-        System.out.println("---\n" + req + "\n---");
+        // Read in the body
+        while(in.ready()) {
+            body.append((char) in.read());
+        }
 
-        String[] startLine = req.split("\r\n", 2)[0].split(" ");
+        Request req = new Request(method, path, headers, body.toString());
 
-        // Sometimes the start-line can be empty or malformed, we'll check if it has 3 parameters
-        // A start-line is in the format: method path version
-        if(startLine.length == 3) {
-            String method = startLine[0];
-            String path = startLine[1].split("\\?", 2)[0]; // Remove a potential query from the path ?key=value&key=value
-            String version = startLine[2];
-
-            // Loop through our handlers and attempt to handle this request, falling through if
-            // the handler before it did not handle the request
-            for(Handler handler : handlers) {
-                if(handler.handle(path, req, out)) {
-                    break;
-                }
-            }
+        for(Handler handler : handlers) {
+            if(handler.handle(req, out))
+                break;
         }
         
         out.close();
