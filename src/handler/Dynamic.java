@@ -81,7 +81,7 @@ public class Dynamic implements Handler {
 
 	public void handleUpload(Request req) {
 		String boundary = req.getHeaders().get("Content-Type").split("boundary=")[1];
-		String[] files = req.getBody().split("--" + boundary + "\r\n");
+		String[] files = req.getBody().split("--" + boundary);
 
 		for(String section : files) {
 			uploadFile(section);
@@ -89,35 +89,58 @@ public class Dynamic implements Handler {
 	}
 
 	public void uploadFile(String file) {
-		String filename = "";
-		Pattern filePattern = Pattern.compile("filename=\\\"(.*)\\\"");
-		Matcher matcher = filePattern.matcher(file);
+		BufferedReader reader = new BufferedReader(new StringReader(file));
+		HashMap<String, String> headers = new HashMap<>();
+		ByteArrayOutputStream bodyBuilder = new ByteArrayOutputStream();
 
-		while(matcher.find()) {
-			filename = matcher.group(1);
-		}
-
-		if(filename.equals(""))
-			return;
-
-		// Short function but if we handle different file types we may need to expand this
-		String cleanedFile = removeContentLines(file);
-		
 		try {
-			FileOutputStream fos = new FileOutputStream(UPLOAD_DIR + "/" + filename);
-			byte[] strToBytes = cleanedFile.getBytes();
-			fos.write(strToBytes);
-			fos.close();
-		} catch (Exception e) {
-			// TODO: Handle it or something
-		}
-	}
+			reader.readLine(); // Skip that first line part
 
-	private String removeContentLines(String file) {
-		// Super naive pattern match
-		file = file.replaceAll("Content.*", "");
-		// Removes blank lines	
-		file = file.replaceAll("(?m)^\\s+", "");
-		return file;
+			String temp;
+			while(true) {
+				temp = reader.readLine();
+
+				if(temp == null || temp.isEmpty())
+					break;
+
+				String[] parts = temp.split(": ");
+
+				if(parts.length < 2)
+					break;
+
+				headers.put(parts[0], parts[1]);
+			}
+			
+			String disposition = headers.get("Content-Disposition");
+
+			// If the header doesn't exist we'll just exit.
+			if(disposition == null)
+				return;
+
+			Pattern filePattern = Pattern.compile("filename=\\\"(.*)\\\"");
+			Matcher matcher = filePattern.matcher(disposition);
+
+			String filename = "";
+			while(matcher.find()) {
+				filename = matcher.group(1);
+			}
+
+			if(filename.isEmpty())
+				return;
+
+			while(true) {
+				int b = reader.read();
+				if(b == -1)
+					break;
+
+				bodyBuilder.write(b);
+			}
+
+			FileOutputStream fos = new FileOutputStream(UPLOAD_DIR + "/" + filename);
+			fos.write(bodyBuilder.toByteArray());
+			fos.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
