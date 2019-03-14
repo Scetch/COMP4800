@@ -3,6 +3,7 @@ import java.net.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.nio.charset.StandardCharsets;
 
 import handler.*;
 
@@ -42,7 +43,7 @@ public class Server {
 
     // Handle a socket connection
     public void handleSocket(Socket socket) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.ISO_8859_1));
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         
         // Wait for BufferredReader to be ready and wait for a max of 0.5 seconds
