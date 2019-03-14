@@ -92,55 +92,28 @@ public class Dynamic implements Handler {
 	}
 
 	public void uploadFile(String file) {
-		BufferedReader reader = new BufferedReader(new StringReader(file));
-		HashMap<String, String> headers = new HashMap<>();
-		ByteArrayOutputStream bodyBuilder = new ByteArrayOutputStream();
+		int bodySplit = file.indexOf("\r\n\r\n");
+
+		if(bodySplit == -1)
+			return;
+
+		String header = file.substring(0, bodySplit);
+		String body = file.substring(bodySplit + 4);
+
+		Pattern filePattern = Pattern.compile("filename=\\\"(.*)\\\"");
+		Matcher matcher = filePattern.matcher(header);
+
+		String filename = "";
+		while(matcher.find()) {
+			filename = matcher.group(1);
+		}
+
+		if(filename.isEmpty())
+			return;
 
 		try {
-			reader.readLine(); // Skip that first line part
-
-			String temp;
-			while(true) {
-				temp = reader.readLine();
-
-				if(temp == null || temp.isEmpty())
-					break;
-
-				String[] parts = temp.split(": ");
-
-				if(parts.length < 2)
-					break;
-
-				headers.put(parts[0], parts[1]);
-			}
-			
-			String disposition = headers.get("Content-Disposition");
-
-			// If the header doesn't exist we'll just exit.
-			if(disposition == null)
-				return;
-
-			Pattern filePattern = Pattern.compile("filename=\\\"(.*)\\\"");
-			Matcher matcher = filePattern.matcher(disposition);
-
-			String filename = "";
-			while(matcher.find()) {
-				filename = matcher.group(1);
-			}
-
-			if(filename.isEmpty())
-				return;
-
-			while(true) {
-				int b = reader.read();
-				if(b == -1)
-					break;
-
-				bodyBuilder.write(b);
-			}
-
 			FileOutputStream fos = new FileOutputStream(UPLOAD_DIR + "/" + filename);
-			fos.write(bodyBuilder.toByteArray());
+			fos.write(body.getBytes(StandardCharsets.ISO_8859_1));
 			fos.close();
 		} catch(IOException e) {
 			e.printStackTrace();
