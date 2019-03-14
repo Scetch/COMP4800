@@ -58,7 +58,8 @@ public class Server {
         String temp;
         String[] startLine;
         HashMap<String, String> headers = new HashMap<>();
-        StringBuilder body = new StringBuilder();
+        ByteArrayOutputStream bodyBuilder = new ByteArrayOutputStream();
+        //StringBuilder body = new StringBuilder();
         
         // Read in startLine
         startLine = in.readLine().split(" ");
@@ -81,10 +82,13 @@ public class Server {
 
         // Read in the body
         while(in.ready()) {
-            body.append((char) in.read());
+            //body.append((char) in.read());
+            bodyBuilder.write(in.read());
         }
 
-        Request req = new Request(method, path, headers, body.toString());
+        String body = bodyBuilder.toString("ISO-8859-1");
+
+        Request req = new Request(method, path, headers, body);
 
         for(Handler handler : handlers) {
             if(handler.handle(req, out))
