@@ -6,9 +6,9 @@ public class Request {
     private String method;
     private String path;
     private HashMap<String, String> headers;
-    private String body;
+    private byte[] body;
 
-    public Request(String method, String path, HashMap<String, String> headers, String body) {
+    public Request(String method, String path, HashMap<String, String> headers, byte[] body) {
         this.method = method;
         this.path = path;
         this.headers = headers;
@@ -27,7 +27,7 @@ public class Request {
         return this.headers;
     }
 
-    public String getBody() {
+    public byte[] getBody() {
         return this.body;
     }
 }

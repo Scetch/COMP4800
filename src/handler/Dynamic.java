@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.regex.*;
 import java.io.*;
 import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
 
 public class Dynamic implements Handler {
 	private static final String WORKING_DIR = System.getProperty("user.dir") + System.getProperty("file.separator");
@@ -81,7 +82,9 @@ public class Dynamic implements Handler {
 
 	public void handleUpload(Request req) {
 		String boundary = req.getHeaders().get("Content-Type").split("boundary=")[1];
-		String[] files = req.getBody().split("--" + boundary);
+		
+		String body = new String(req.getBody(), StandardCharsets.ISO_8859_1); 
+		String[] files = body.split("--" + boundary);
 
 		for(String section : files) {
 			uploadFile(section);
