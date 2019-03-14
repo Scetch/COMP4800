@@ -98,7 +98,7 @@ public class Dynamic implements Handler {
 			return;
 
 		String header = file.substring(0, bodySplit);
-		String body = file.substring(bodySplit + 4);
+		String body = file.substring(bodySplit + 4, file.lastIndexOf("\r\n"));
 
 		Pattern filePattern = Pattern.compile("filename=\\\"(.*)\\\"");
 		Matcher matcher = filePattern.matcher(header);
