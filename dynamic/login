@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+import sys
+import os
+import urllib.parse as urlparse
+import hashlib
+import secrets
+sys.path.insert(0, os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data"))
+# from data.dbjson import DBJson
+from dbjson import DBJson
+
+DEBUG = False
+
+def writeErr(output):
+    sys.stderr.write(output + os.linesep)
+    sys.stderr.flush()
+
+def write(output):
+    sys.stdout.write(output + os.linesep)
+    sys.stdout.flush()
+
+def read():
+    return sys.stdin.readline().strip()
+
+def reqBody():
+    write("req.body")
+    terWord = read()
+    line = read()
+    body = ""
+    while line != terWord:
+        body += line
+        line = read()
+    
+    return body
+
+def returnError():
+    write("res.body")
+    write("done")
+    with open("ref/login.error.html", 'r') as htmlFile:
+        write(htmlFile.read())
+    write("done")
+    write("exit")
+    sys.exit()
+
+def redirect(user):
+    write('res.status')
+    write('302')
+    
+    if user['role'] == 'student':
+        write('res.header')
+        write('Location: /student')
+    elif user['role'] == 'teacher':
+        write('res.header')
+        write('Location: /teacher')
+
+reqMethod = sys.stdin.readline().strip()
+if DEBUG: writeErr("STDERR: " + reqMethod)
+
+# GET request method
+if reqMethod == "GET":
+    # check if cookies matches
+    write("req.header"+os.linesep+"Cookie")
+    cookie = read()
+    if DEBUG: writeErr("cookie:"+cookie)
+    if cookie != '':
+        cookie = cookie.split('=')
+        db = DBJson('data/db.json')
+        user = db.getRow('users', 'sessionCookie', cookie[1])
+        if user != {}:
+            redirect(user)
+
+    # display login page
+    write("res.body")
+    write("done")
+    with open("ref/login.html", 'r') as htmlFile:
+        write(htmlFile.read())
+    write("done")
+    write("exit")
+    sys.exit()
+
+
+# POST request method
+if reqMethod == "POST":
+    # get query string from body
+    reqBody = reqBody()
+    # parse query string
+    parsedQuery = urlparse.parse_qsl(reqBody)
+
+    # get username and password
+    if parsedQuery[0][0] == 'username' and parsedQuery[1][0] == 'password':
+        username = parsedQuery[0][1]
+        password = parsedQuery[1][1]    
+        if DEBUG: writeErr("ERR: username: " + username)
+        if DEBUG: writeErr("ERR: password: " + password)
+    else:
+        returnError()
+    
+    db = DBJson('data/db.json')
+    user = db.getRow('users', 'username', username)
+    if user == {}:
+        returnError()
+
+    # THIS IS BAD, should use salt and bcrypt
+    passwordHash = hashlib.sha256(password.encode()).hexdigest()
+    if  user['password'] != passwordHash:
+        returnError()
+    
+    sessionCookie = secrets.token_urlsafe(32)
+    user['sessionCookie'] = sessionCookie
+    db.dumpdb()
+    write('res.header')
+    write('Set-Cookie: sessionCookie=' + sessionCookie)
+
+    redirect(user)
+
+write('exit')

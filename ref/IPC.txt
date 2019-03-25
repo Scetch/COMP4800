@@ -1,0 +1,75 @@
+J is Java server
+P is process
+P < mean process reads one line
+J > mean Java server writes one line
+Both Java server and process can read and writes
+
+Java server will write the HTTP method in at the start of the process
+
+J > *HTTP method*
+P < *HTTP method*
+
+Now the process can send command to the server
+
+req.path | req.fullPath
+    P > *path command*
+    J < ...
+    J > *path*
+    P < *path*
+
+req.body
+	This could be multi line output so the server will define a terminating word which will be written at the beginning and end of the body
+    P > "req.body"
+    J < "req.body"
+    J > *terminating word*
+    P < *terminating word*
+    J > *first body line*
+    P < *first body line*
+    ...
+    J > *last body line*
+    P < *last body line*
+    J > *terminating word*
+    P < *terminating word*
+
+req.bodySave
+	P > "req.bodySave"
+	J < "req.bodySave"
+	J > *JSON array of file names saved to UPLOAD_DIR*
+	P < *array of file names*
+
+
+res.status
+	P > "res.status"
+	J < "res.status"
+	P > *HTTP status*
+	J > *HTTP status*
+
+res.header
+	P > "res.header"
+	J < "res.header"
+	P > *header key value pair*
+	J < *header item*
+	Java server will add to the response header
+
+res.body
+	This could be multi line output so the process must define a terminating word which must be written at the beginning and end of the body
+	P > "res.body"
+	J < "res.body"
+	P > *terminating word*
+	J < *terminating word*
+	P > *fire body line*
+	J < *fire body line*
+	...
+	P > *last body line*
+	J < *last body line*
+	P > *terminating word*
+	J < *terminating word*
+
+res.sendFile
+	P > "res.sendFile"
+	J < "res.sendFile"
+	P > *absolute path to file*
+	J < *absolute path to file*
+
+
+

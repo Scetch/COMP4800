@@ -1,0 +1,208 @@
+[
+    {
+        "users": [
+            {
+                "lastName": "Aldoreh",
+                "firstName": "Adam",
+                "username": "aldoreh",
+                "role": "student",
+                "password": "f7f376a1fcd0d0e11a10ed1b6577c99784d3a6bbe669b1d13fae43eb64634f6e"
+            },
+            {
+                "lastName": "Chopra",
+                "firstName": "Vivek",
+                "username": "chopra",
+                "role": "student",
+                "password": "a3da73976501812cd7b821a20bfb09af0a6a891e419cdfb761fb19a92c914242"
+            },
+            {
+                "lastName": "Dao",
+                "firstName": "Joseph",
+                "username": "dao",
+                "role": "student",
+                "password": "7ee8118150e0ce023742beba6f10bf23aabbf0bc2c182f36fd1a6753cd21b4c6"
+            },
+            {
+                "lastName": "Dhillon",
+                "firstName": "Tajinder",
+                "username": "dhillon",
+                "role": "student",
+                "password": "53da5f908db24aafd17c3400e0f3094bc051720ebb8f6ed512743b711ef0ee00"
+            },
+            {
+                "lastName": "Easterbrook",
+                "firstName": "Zach",
+                "username": "easterbrook",
+                "role": "student",
+                "password": "cb9b5a0f4a8b09ba490e3acc902f38acf85205797cd59654645e5c1ef8c1ada0"
+            },
+            {
+                "lastName": "Falodun",
+                "firstName": "Tomisin",
+                "username": "falodun",
+                "role": "student",
+                "password": "8ef01b37ccaaffbbf1b5508b8fc8045321072f6f15e1f5d94a0064cc9f0a7328"
+            },
+            {
+                "lastName": "Chen",
+                "firstName": "Jessica",
+                "username": "chen",
+                "role": "teacher",
+                "password": "e1fc45f7880e0505ff0b6a079b9af149f225e260f59b1d20225357a8cce8ffd8"
+            },
+            {
+                "lastName": "Lu",
+                "firstName": "Yicheng",
+                "username": "lu",
+                "role": "student",
+                "password": "4c05dd7f98d057f55aa994834e82ba1c8265ef61d899cef41c2c8d2c45e6ec0a",
+                "sessionCookie": "eHlZ54-v0mcJeBc256ZU0T1Hr9R7g6YwYaVBMrRIxLo"
+            },
+            {
+                "lastName": "Lucier",
+                "firstName": "Brandon",
+                "username": "lucier",
+                "role": "student",
+                "password": "fdb7d5c701a3b4a9981e98fd486d22b51b51f2e91605540e57081d440573c009"
+            },
+            {
+                "lastName": "Mallem",
+                "firstName": "Ali",
+                "username": "mallem",
+                "role": "student",
+                "password": "94419b99b12c11133a4dfeccc3e17885974beb48f7827c48239aabfbcad238d8"
+            },
+            {
+                "lastName": "Melanson",
+                "firstName": "Mike",
+                "username": "melanson",
+                "role": "student",
+                "password": "64b4d0f47c93ce23d157e68a58767356283dc9b63c459d45d0e0e39b3a64b9b9"
+            },
+            {
+                "lastName": "Singh",
+                "firstName": "Manpreet",
+                "username": "singh",
+                "role": "student",
+                "password": "696c5584f5d25df888e7ca678da1fea70868df586977f1edcc92c94721ced7cf",
+                "sessionCookie": "dbzmBBV7ev2Y_tYGA5rzPZDutE50YV-6JmgzA7M4rrE"
+            },
+            {
+                "lastName": "Wang",
+                "firstName": "Zheng",
+                "username": "wang",
+                "role": "student",
+                "password": "01380046d1d8e2162c4da19af3749b5078881de44f2bf7fc354b12649274bed8"
+            },
+            {
+                "lastName": "Zhang",
+                "firstName": "Xiaobang",
+                "username": "zhang",
+                "role": "student",
+                "password": "41fe03954e16dead9185969c04e5db4a51b56e25fa671f9f5ca687aa7fef535f"
+            },
+            {
+                "lastName": "Zeidler",
+                "firstName": "Matthew",
+                "username": "zeidler",
+                "role": "student",
+                "password": "68be7550846ecd878947b4eb0ac13d3cca3cf6c4940c94d90163e0a15e947203"
+            },
+            {
+                "lastName": "Cher",
+                "firstName": "Tea",
+                "username": "teacher1",
+                "role": "teacher",
+                "password": "1057a9604e04b274da5a4de0c8f4b4868d9b230989f8c8c6a28221143cc5a755"
+            }
+        ]
+    },
+    {
+        "assignment": [
+            {
+                "username": "aldoreh",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "chopra",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "dao",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "dhillon",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "easterbrook",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "falodun",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "lu",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "lucier",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "mallem",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "melanson",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "singh",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "wang",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "zhang",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            },
+            {
+                "username": "zeidler",
+                "binLoc": "",
+                "sourceLoc": "",
+                "mark": ""
+            }
+        ]
+    }
+]

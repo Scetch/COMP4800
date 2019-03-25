@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<title>Student</title>
+	</head>
+	<body>
+		<h2 style="display: inline">Welcome: {name}</h2>
+		<a href="/logout" style="float: right;">Logout</a>
+		<h3>Assignment</h3>
+		{formBegin}
+		<form action="/studentUpload" method="POST" enctype="multipart/form-data">
+			<strong>Source File: </strong><input type="file" name="sourceFile" required/>
+			<strong>Bin File: </strong><input type="file" name="binFile"/><br />
+			<input type="submit" value="Upload!" />
+		</form>
+		{formEnd}
+		{viewBegin}
+		<strong>Source File: </strong><a {sourceLink}>{sourceName}</a>
+		<strong>Bin File: </strong><a {binLink}>{binName}</a>
+		<strong>Mark: </strong><span>{mark}</span>
+		{viewEnd}
+	</body>
+</html>

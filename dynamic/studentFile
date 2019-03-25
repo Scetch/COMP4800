@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+import sys
+import os
+import urllib.parse as urlparse
+sys.path.insert(0, os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data"))
+# from data.dbjson import DBJson
+from dbjson import DBJson
+
+DEBUG = False
+
+def writeErr(output):
+    sys.stderr.write(output + os.linesep)
+    sys.stderr.flush()
+
+def write(output):
+    sys.stdout.write(output + os.linesep)
+    sys.stdout.flush()
+
+def read():
+    return sys.stdin.readline().strip()
+
+def returnError():
+    write("res.body")
+    write("done")
+    write("<h3>Error</h3>")
+    write("done")
+    write("exit")
+    sys.exit()
+
+reqMethod = sys.stdin.readline().strip()
+if DEBUG: writeErr("STDERR: " + reqMethod)
+
+# GET request method
+if reqMethod == "GET":
+    # get user via cookie
+    write("req.header"+os.linesep+"Cookie")
+    cookie = read()
+    if DEBUG: writeErr("cookie:"+cookie)
+    # no cookie 
+    if cookie == '':
+        returnError()
+    cookie = cookie.split('=')
+    db = DBJson('data/db.json')
+    user = db.getRow('users', 'sessionCookie', cookie[1])
+    if user == {}:
+        returnError()
+
+    # get file type and username from request path
+    write("req.fullPath")
+    queryString = read().split('?')[1]
+    queryString = urlparse.parse_qsl(queryString)
+    if DEBUG: writeErr("Err: queryString: " + str(queryString))
+    if queryString[0][0] != "file" or queryString[1][0] != "username":
+        if DEBUG: writeErr("Err qs")
+        returnError()
+    
+    filetype = queryString[0][1]
+    username = queryString[1][1]
+
+    # only username that match can view file unless your a teacher
+    if username != user['username'] and user['role'] != 'teacher':
+        if DEBUG: writeErr("Err role")
+        returnError()
+
+    # get assignemnt from this user
+    assign = db.getRow('assignment', 'username', username)
+    
+    # load file into response body and set header file name if file exist
+    if filetype == 'bin' and assign['binLoc'] != '':
+        filepath = os.path.join(os.getcwd(), assign['binLoc'])
+        write("res.header\nContent-Disposition: attachment; filename="+filepath.split('/')[-1])
+        write("res.sendFile"+os.linesep+filepath)
+    elif filetype == 'source' and assign['sourceLoc'] != '':
+        filepath = os.path.join(os.getcwd(),assign['sourceLoc'])
+        write("res.header\nContent-Disposition: attachment; filename="+filepath.split('/')[-1])
+        write("res.sendFile"+os.linesep+filepath)
+    
+write('exit')

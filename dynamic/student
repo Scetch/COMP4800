@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data"))
+# from data.dbjson import DBJson
+from dbjson import DBJson
+
+DEBUG = False
+
+def writeErr(output):
+    sys.stderr.write(output + os.linesep)
+    sys.stderr.flush()
+
+def write(output):
+    sys.stdout.write(output + os.linesep)
+    sys.stdout.flush()
+
+def read():
+    return sys.stdin.readline().strip()
+
+def returnError():
+    write("res.body")
+    write("done")
+    with open("ref/login.error.html", 'r') as htmlFile:
+        write(htmlFile.read())
+    write("done")
+    write("exit")
+    sys.exit()
+
+reqMethod = sys.stdin.readline().strip()
+if DEBUG: writeErr("STDERR: " + reqMethod)
+
+# GET request method
+if reqMethod == "GET":
+    ls = os.linesep
+    # get user via cookie
+    write("req.header"+ls+"Cookie")
+    cookie = read()
+    if DEBUG: writeErr("cookie:"+cookie)
+    # no cookie 
+    if cookie == '':
+        returnError()
+    
+    # check if user logged in via sessoinCookie
+    cookie = cookie.split('=')
+    db = DBJson('data/db.json')
+    user = db.getRow('users', 'sessionCookie', cookie[1])
+    # no user found with cookie
+    if user == {}:
+        returnError()
+    
+    # only user who are students
+    if user['role'] != 'student':
+        write("res.status"+ls+"403")
+        write("res.body"+ls+"done"+ls+"<h3>403: Not a Student</h3>"+ls+"done")
+        write('exit')
+        sys.exit()
+    
+    # get assignment of student
+    assign = db.getRow('assignment', 'username', user['username'])
+
+    # get student template page
+    with open("ref/student.html", 'r') as htmlFile:
+        htmlPage = htmlFile.read()
+
+    # insert name of user
+    htmlPage = htmlPage.replace('{name}', user['firstName']+' '+user['lastName'])
+    
+    # show form if user has empty sourceLoc and binLoc
+    if assign['sourceLoc']=='' and assign['binLoc']=='':
+        # remove view
+        i = htmlPage.index('{viewBegin}')
+        j = htmlPage.index('{viewEnd}') + len('{viewEnd}')
+        htmlPage = htmlPage[:i] + htmlPage[j:]
+        # remove marker things
+        htmlPage = htmlPage.replace('{formBegin}', ' ')
+        htmlPage = htmlPage.replace('{formEnd}', ' ')
+    else: # show links to uploaded files and mark
+        # remove view
+        i = htmlPage.index('{formBegin}')
+        j = htmlPage.index('{formEnd}') + len('{formEnd}')
+        htmlPage = htmlPage[:i] + htmlPage[j:]
+        # remove marker things
+        htmlPage = htmlPage.replace('{viewBegin}', ' ')
+        htmlPage = htmlPage.replace('{viewEnd}', ' ')
+        # update mark
+        if assign['mark'] == '':
+            htmlPage = htmlPage.replace('{mark}', 'No Mark')
+        else:
+            htmlPage = htmlPage.replace('{mark}', assign['mark'])
+        # set file links
+        sourceName = assign['sourceLoc'].split('/')[-1]
+        htmlPage = htmlPage.replace('{sourceName}', sourceName)
+        htmlPage = htmlPage.replace('{sourceLink}', 'href="/studentFile?file=source&username='+user['username']+'"')
+        # no bin file is possbile
+        if assign['binLoc'] == "":
+            htmlPage = htmlPage.replace('{binName}', "No File")
+            htmlPage = htmlPage.replace('{binLink}', '')            
+        else:
+            binName = assign['binLoc'].split('/')[-1]
+            htmlPage = htmlPage.replace('{binName}', binName)
+            htmlPage = htmlPage.replace('{binLink}', 'href="/studentFile?file=bin&username='+user['username']+'"')
+        # set file names
+
+
+    # add html page to response body
+    write("res.body"+ls+"done"+ls+htmlPage+ls+"done")
+
+
+write('exit')

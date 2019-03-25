@@ -1,4 +1,3 @@
-<!-- ONLY USED FOR REFERNECE -->
 <!DOCTYPE html>
 <html>
     <head>
@@ -6,8 +5,9 @@
     </head>
 
     <body>
+        <h2 style="display: inline">Welcome: {name}</h2>
+        <a href="/logout" style="float: right;">Logout</a>
         <div style="text-align: center; margin: auto; width: 50%">
-            <img src="/uwin.png" /><br>
             <form action="teacher" method="post">
                 <table style="width: 100%">
                     <tr>
@@ -17,20 +17,7 @@
                         <th>Mark</th>
                     </tr>
 
-                    <tr>
-                        <td>name</td>
-                        <td><a href="/static/downloads/source[id].zip" download>Source</a></td>
-                        <td><a href="/static/downloads/binary[id].zip" download>Binary</a></td>
-                        <td><input type="number" name="[id]" value="" style="width: 50px"></td>
-                    </tr>
-
-                    <tr>
-                        <td>name</td>
-                        <td><a href="/static/downloads/source[id].zip" download>Source</a></td>
-                        <td><a href="/static/downloads/binary[id].zip" download>Binary</a></td>
-                        <td><input type="number" name="[id]" value="" style="width: 50px"></td>
-                    </tr>
-
+                    {studentList}
 
                     <tr>
                         <td></td>
@@ -45,3 +32,11 @@
         </div>
     </body>
 </html>
+<template>
+    <tr>
+        <td>{studentName}</td>
+        <td><a {sourceLink} download>{sourceName}</a></td>
+        <td><a {binLink} download>{binName}</a></td>
+        <td><input type="number" name="{username}" value="{mark}" style="width: 50px"></td>
+    </tr>
+</template>

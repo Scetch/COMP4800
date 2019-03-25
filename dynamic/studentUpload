@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+import sys
+import os
+import shutil
+from functools import reduce
+sys.path.insert(0, os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data"))
+# from data.dbjson import DBJson
+from dbjson import DBJson
+
+DEBUG = False
+
+def writeErr(output):
+    sys.stderr.write(output + os.linesep)
+    sys.stderr.flush()
+
+def write(output):
+    sys.stdout.write(output + os.linesep)
+    sys.stdout.flush()
+
+def read():
+    return sys.stdin.readline().strip()
+
+def returnError():
+    write("res.body")
+    write("done")
+    write("<h3>Error!</h3>")
+    write("done")
+    write("exit")
+    sys.exit()
+
+def redirect(user):
+    write('res.status')
+    write('302')
+    
+    if user['role'] == 'student':
+        write('res.header')
+        write('Location: /student')
+    elif user['role'] == 'teacher':
+        write('res.header')
+        write('Location: /teacher')
+    
+
+def redirectHome():
+    write('res.status')
+    write('302')
+    write('res.header')
+    write('Location: /')
+
+reqMethod = sys.stdin.readline().strip()
+if DEBUG: writeErr("STDERR: " + reqMethod)
+
+# GET request method
+if reqMethod == "GET":
+    # redirect to student or teacher page else redirect to home
+    # check if cookies matches
+    write("req.header"+os.linesep+"Cookie")
+    cookie = read()
+    if DEBUG: writeErr("cookie:"+cookie)
+    home = False
+    if cookie == '':
+        redirectHome()
+        write("exit")
+        sys.exit()
+    cookie = cookie.split('=')
+    # get user for this cookie
+    db = DBJson('data/db.json')
+    user = db.getRow('users', 'sessionCookie', cookie[1])
+    if user == {}:
+        redirectHome()
+        write("exit")
+        sys.exit()
+    
+    redirect(user)
+    write("exit")
+    sys.exit()
+        
+
+
+# POST request method
+if reqMethod == "POST":
+    # get user via cookie
+    write("req.header"+os.linesep+"Cookie")
+    cookie = read()
+    if DEBUG: writeErr("cookie:"+cookie)
+    # no cookie 
+    if cookie == '':
+        returnError()
+    cookie = cookie.split('=')
+    # get user for this cookie
+    db = DBJson('data/db.json')
+    user = db.getRow('users', 'sessionCookie', cookie[1])
+    if user == {}:
+        returnError()
+    
+    # tell server to server to save request body as files
+    # and get file name
+    write("req.bodySave")
+    temp = read()
+    if DEBUG: writeErr("Err: temp: " + temp) # i.e. [file.txt, bin]
+    fileNames = temp[1:-1].split(', ') # convert to string to list
+
+    ps = os.pathsep
+    # move files to the correct folder for the user
+    for fileName in fileNames:
+        if DEBUG: writeErr("Err: moving file " + fileName)
+        fromPath = reduce(os.path.join, ['temp', fileName])
+        toPath = reduce(os.path.join, ['data', 'assign', user['username']])
+        # check if directory for user exists
+        if not os.path.exists(toPath):
+            os.makedirs(toPath)
+        toPath = os.path.join(toPath, fileName)
+        shutil.move(fromPath, toPath)
+    
+    # bin file is first in fileNames, update assignment file locations in db.json
+    assign = db.getRow('assignment', 'username', user['username'])
+    if DEBUG: writeErr("Err: len(fileName): " + str(len(fileNames)))
+    if len(fileNames) == 2:
+        assign['binLoc'] = reduce(os.path.join, ['data', 'assign', user['username'], fileNames[0]])
+        assign['sourceLoc'] = reduce(os.path.join, ['data', 'assign', user['username'], fileNames[1]])
+    elif len(fileNames) == 1:
+        # allow for single file upload of just soruce file no binary file
+        assign['binLoc'] = ""
+        assign['sourceLoc'] = reduce(os.path.join, ['data', 'assign', user['username'], fileNames[0]])
+
+    # save to dp.json
+    db.dumpdb()
+
+    redirect(user)
+
+write('exit')

@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data"))
+# from data.dbjson import DBJson
+from dbjson import DBJson
+
+DEBUG = False
+
+def writeErr(output):
+    sys.stderr.write(output + os.linesep)
+    sys.stderr.flush()
+
+def write(output):
+    sys.stdout.write(output + os.linesep)
+    sys.stdout.flush()
+
+def read():
+    return sys.stdin.readline().strip()
+
+def returnError():
+    write("res.body")
+    write("done")
+    with open("ref/login.error.html", 'r') as htmlFile:
+        write(htmlFile.read())
+    write("done")
+    write("exit")
+    sys.exit()
+
+def redirect(user):
+    write('res.status')
+    write('302')
+    write('res.header')
+    write('Location: /login')
+
+reqMethod = sys.stdin.readline().strip()
+if DEBUG: writeErr("STDERR: " + reqMethod)
+
+# GET request method
+if reqMethod == "GET":
+    # check if cookies matches
+    write("req.header"+os.linesep+"Cookie")
+    cookie = read()
+    if DEBUG: writeErr("cookie:"+cookie)
+    if cookie != '':
+        cookie = cookie.split('=')
+        db = DBJson('data/db.json')
+        user = db.getRow('users', 'sessionCookie', cookie[1])
+        if DEBUG: writeErr("Err: " + str(user))
+        if user != {}:
+            # delete cookie from user
+            del user['sessionCookie']
+            db.dumpdb()
+            write('res.header')
+            write('Set-Cookie: sessionCookie=')
+            redirect(user)
+
+write('exit')
