@@ -1,3 +1,0 @@
-#!/bin/python3
-
-print("<html><body>Hello from python</body></html>")

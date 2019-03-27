@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 public class Dynamic implements Handler {
 	private static final String WORKING_DIR = System.getProperty("user.dir") + System.getProperty("file.separator");
 	private static final String DYNAMIC_DIR =  WORKING_DIR + "dynamic";
-	private static final String UPLOAD_DIR = WORKING_DIR + "temp";
+	private static final String UPLOAD_DIR = WORKING_DIR + "uploads";
 	private static final boolean DEBUG = false;
 
 	public boolean handle(Request req, DataOutputStream out) throws IOException {
@@ -20,15 +20,6 @@ public class Dynamic implements Handler {
 		// Simple hack to give a filename to /
         if(relativePath.equals("/"))
 			relativePath = "index";
-
-		// String contentType = req.getHeaders().get("Content-Type");
-		// if(contentType != null && contentType.contains("multipart/form-data")) {
-		// 	// This is a file upload, we'll parse the file contents and save them to UPLOAD_DIR
-
-		// 	this.handleUpload(req);
-
-		// 	// TODO
-		// }
 
 		Path path = Paths.get(DYNAMIC_DIR + relativePath);
 

@@ -103,7 +103,7 @@ if reqMethod == "POST":
     # move files to the correct folder for the user
     for fileName in fileNames:
         if DEBUG: writeErr("Err: moving file " + fileName)
-        fromPath = reduce(os.path.join, ['temp', fileName])
+        fromPath = reduce(os.path.join, ['uploads', fileName])
         toPath = reduce(os.path.join, ['data', 'assign', user['username']])
         # check if directory for user exists
         if not os.path.exists(toPath):
